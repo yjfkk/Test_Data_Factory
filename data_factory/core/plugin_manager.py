@@ -157,7 +157,7 @@ except Exception as e:
 class PluginManager:
     """插件管理器"""
     
-    def __init__(self, plugins_dir: str = "plugins"):
+    def __init__(self, plugins_dir: str = "examples/plugins"):
         self.plugins_dir = Path(plugins_dir)
         self.loaded_plugins: Dict[str, PluginInfo] = {}
         self.modules: Dict[str, Module] = {}  # module_id -> Module

@@ -29,7 +29,7 @@ app.add_middleware(
 )
 
 # 全局插件管理器
-plugin_manager = PluginManager("plugins")
+plugin_manager = PluginManager("examples/plugins")
 
 # 挂载静态文件
 static_dir = Path(__file__).parent / "static"
@@ -307,17 +307,44 @@ async def execute_module(module_id: str, data: Dict[str, Any], request: Request)
         request_id=request.headers.get("x-request-id")
     )
     
-    # 执行模块
-    result = plugin_manager.execute_module(module_id, data, context)
+    # 直接执行模块（绕过子进程）
+    module = plugin_manager.get_module(module_id)
+    if not module:
+        return {
+            "status": "error",
+            "data": None,
+            "message": f"模块不存在: {module_id}",
+            "error_code": "MODULE_NOT_FOUND",
+            "execution_time": None
+        }
     
-    # 返回结果
-    return {
-        "status": result.status.value,
-        "data": result.data,
-        "message": result.message,
-        "error_code": result.error_code,
-        "execution_time": result.execution_time
-    }
+    try:
+        import time
+        start_time = time.time()
+        
+        # 直接实例化处理器
+        handler = module.handler_class()
+        result = handler.handle(data, context)
+        
+        execution_time = time.time() - start_time
+        
+        return {
+            "status": result.status.value,
+            "data": result.data,
+            "message": result.message,
+            "error_code": result.error_code,
+            "execution_time": execution_time
+        }
+    except Exception as e:
+        import traceback
+        return {
+            "status": "error",
+            "data": None,
+            "message": f"执行失败: {str(e)}",
+            "error_code": "EXECUTION_ERROR",
+            "execution_time": None,
+            "traceback": traceback.format_exc()
+        }
 
 
 @app.api_route("/dmm/{action_space}/{action_name}", methods=["GET", "POST"])
@@ -345,20 +372,41 @@ async def http_service(action_space: str, action_name: str, request: Request):
     else:
         data = dict(request.query_params)
     
-    # 执行模块
+    # 直接执行模块（绕过子进程）
     context = ExecutionContext(
         client_ip=request.client.host,
         request_id=request.headers.get("x-request-id")
     )
     
-    result = plugin_manager.execute_module(target_module["id"], data, context)
+    module = plugin_manager.get_module(target_module["id"])
+    if not module:
+        raise HTTPException(status_code=500, detail="模块加载失败")
     
-    return {
-        "status": result.status.value,
-        "data": result.data,
-        "message": result.message,
-        "execution_time": result.execution_time
-    }
+    try:
+        import time
+        start_time = time.time()
+        
+        # 直接实例化处理器
+        handler = module.handler_class()
+        result = handler.handle(data, context)
+        
+        execution_time = time.time() - start_time
+        
+        return {
+            "status": result.status.value,
+            "data": result.data,
+            "message": result.message,
+            "execution_time": execution_time
+        }
+    except Exception as e:
+        import traceback
+        return {
+            "status": "error",
+            "data": None,
+            "message": f"执行失败: {str(e)}",
+            "execution_time": None,
+            "traceback": traceback.format_exc()
+        }
 
 
 @app.get("/health")

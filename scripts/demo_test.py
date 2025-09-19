@@ -16,7 +16,7 @@ def test_core_functionality():
         print("✅ 核心模块导入成功")
         
         # 测试插件管理器
-        pm = PluginManager('plugins')
+        pm = PluginManager('examples/plugins')
         modules = pm.scan_plugins()
         print(f"✅ 插件扫描成功，找到 {len(modules)} 个模块:")
         
@@ -41,7 +41,7 @@ def test_plugin_execution():
     try:
         from data_factory.core.plugin_manager import PluginManager
         
-        pm = PluginManager('plugins')
+        pm = PluginManager('examples/plugins')
         pm.scan_plugins()
         
         # 测试用户插件（直接调用，不使用子进程）

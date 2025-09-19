@@ -17,12 +17,16 @@
 
 ```bash
 pip install -r requirements.txt
+# 或使用 Make
+make install
 ```
 
 ### 2. 启动演示程序
 
 ```bash
-python run_demo.py
+python scripts/run_demo.py
+# 或使用 Make
+make demo
 ```
 
 ### 3. 访问Web界面
@@ -49,18 +53,30 @@ python run_demo.py
 
 ```
 Test_Data_Factory/
-├── data_factory/           # 核心框架
-│   ├── core/              # 核心模块
-│   │   ├── interfaces.py  # 核心接口定义
+├── data_factory/              # 核心框架
+│   ├── core/                 # 核心模块
+│   │   ├── interfaces.py     # 核心接口定义
 │   │   └── plugin_manager.py # 插件管理器
-│   └── web/               # Web服务
-│       └── main.py        # FastAPI应用
-├── plugins/               # 插件目录
-│   ├── user_demo/         # 用户数据生成插件
-│   └── order_demo/        # 订单数据生成插件
-├── requirements.txt       # 依赖包
-├── run_demo.py           # 启动脚本
-└── README.md             # 说明文档
+│   └── web/                  # Web服务
+│       └── main.py           # FastAPI应用
+├── examples/                 # 示例插件
+│   └── plugins/              # 插件目录
+│       ├── user_demo/        # 用户数据生成插件
+│       └── order_demo/       # 订单数据生成插件
+├── tests/                    # 测试代码
+│   ├── unit/                 # 单元测试
+│   └── integration/          # 集成测试
+├── scripts/                  # 工具脚本
+│   ├── run_demo.py          # 启动脚本
+│   └── demo_test.py         # 功能测试脚本
+├── docs/                     # 项目文档
+│   ├── requirements.md       # 需求分析文档
+│   ├── technical_design.md   # 技术设计文档
+│   └── DEMO_SUMMARY.md      # Demo总结
+├── requirements.txt          # 依赖包
+├── pyproject.toml           # 项目配置
+├── Makefile                 # 构建脚本
+└── README.md                # 项目说明
 ```
 
 ## 🔌 插件开发
@@ -68,12 +84,12 @@ Test_Data_Factory/
 ### 1. 创建插件目录
 
 ```bash
-mkdir plugins/my_plugin
+mkdir examples/plugins/my_plugin
 ```
 
 ### 2. 实现插件代码
 
-创建 `plugins/my_plugin/main.py`:
+创建 `examples/plugins/my_plugin/main.py`:
 
 ```python
 from data_factory.core.interfaces import Register, Handler, Module, Widget, WidgetType, Result, ResultStatus
